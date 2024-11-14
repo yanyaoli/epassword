@@ -1,0 +1,122 @@
+:root {
+    --text-color: #fff;
+    --border-color: #1c1e22;
+    --background-color: #000000;
+    --input-background-color: #111;
+    --input-focus-color: #fff;
+    --button-background-color: #181818;
+    --button-hover-color: #0e0d0d;
+    --toast-background-color: #111;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    padding: 2.5rem;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.title {
+    color: var(--text-color);
+    font-size: 3rem;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 0.6rem;
+}
+
+.input-group {
+    width: 100%;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 0.75rem 0 0.75rem 0;
+    border-radius:4px;
+    font-size: 1.1rem;
+    transition: border-color 0.3s;
+    background-color: var(--input-background-color);
+    color: var(--text-color);
+    text-align: center;
+    border: 1px solid var(--input-background-color);
+}
+
+input[type="text"]:focus {
+    outline: none;
+    border-color: var(--input-focus-color);
+}
+
+.button-group {
+    width: 100%;
+    display: flex;
+    gap: 0.5rem;
+}
+
+button {
+    flex: 1;
+    padding: 0.75rem;
+    background-color: var(--button-background-color);
+    color: dimgrey;
+    border: none;
+    border-radius: 4px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+button:hover {
+    background-color: var(--button-hover-color);
+}
+
+#toast {
+    visibility: hidden;
+    display: inline-block;
+    background-color: var(--toast-background-color);
+    color: var(--text-color);
+    text-align: center;
+    border-radius: 4px;
+    padding: 12px;
+    position: fixed;
+    z-index: 1;
+    left: 50%;
+    bottom: 30px;
+    font-size: 16px;
+    transform: translateX(-50%);
+}
+
+#toast.show {
+    visibility: visible;
+    animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+@keyframes fadein {
+    from {bottom: 0; opacity: 0;}
+    to {bottom: 30px; opacity: 1;}
+}
+
+@keyframes fadeout {
+    from {bottom: 30px; opacity: 1;}
+    to {bottom: 0; opacity: 0;}
+}
