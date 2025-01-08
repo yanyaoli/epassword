@@ -1,12 +1,13 @@
 :root {
-    --text-color: #fff;
-    --border-color: #1c1e22;
-    --background-color: #000000;
-    --input-background-color: #111;
-    --input-focus-color: #fff;
-    --button-background-color: #181818;
-    --button-hover-color: #0e0d0d;
-    --toast-background-color: #111;
+    --text-color: #ffffff;
+    --border-color: #2c2f33;
+    --background-color: #23272a;
+    --input-background-color: #2c2f33;
+    --input-focus-color: #7289da;
+    --button-background-color: #7289da;
+    --button-hover-color: #5b6eae;
+    --toast-background-color: #2c2f33;
+    --button-text-color: #ffffff;
 }
 
 html, body {
@@ -24,11 +25,11 @@ body {
 }
 
 .container {
-    padding: 2.5rem;
+    padding: 2rem;
     border-radius: 10px;
     border: 1px solid var(--border-color);
     width: 100%;
-    max-width: 400px;
+    max-width: 500px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -37,21 +38,24 @@ body {
 
 .title {
     color: var(--text-color);
-    font-size: 3rem;
+    font-size: 2.5rem;
     text-align: center;
     margin-top: 0;
-    margin-bottom: 0.6rem;
+    margin-bottom: 1rem;
 }
 
 .input-group {
     width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
-input[type="text"] {
-    width: 100%;
-    padding: 0.75rem 0 0.75rem 0;
-    border-radius:4px;
-    font-size: 1.1rem;
+.input-group input[type="text"] {
+    flex: 3;
+    padding: 0.75rem;
+    border-radius: 4px;
+    font-size: 1rem;
     transition: border-color 0.3s;
     background-color: var(--input-background-color);
     color: var(--text-color);
@@ -59,7 +63,7 @@ input[type="text"] {
     border: 1px solid var(--input-background-color);
 }
 
-input[type="text"]:focus {
+.input-group input[type="text"]:focus {
     outline: none;
     border-color: var(--input-focus-color);
 }
@@ -74,10 +78,10 @@ button {
     flex: 1;
     padding: 0.75rem;
     background-color: var(--button-background-color);
-    color: dimgrey;
+    color: var(--button-text-color);
     border: none;
     border-radius: 4px;
-    font-size: 1.2rem;
+    font-size: 1rem;
     cursor: pointer;
     transition: background-color 0.3s;
     display: flex;
@@ -88,6 +92,31 @@ button {
 
 button:hover {
     background-color: var(--button-hover-color);
+}
+
+/* 特定按钮样式 */
+.encrypt-button {
+    background-color: #ae0000;
+}
+
+.encrypt-button:hover {
+    background-color: #8B0000;
+}
+
+.random-button {
+    background-color: #008000;
+}
+
+.random-button:hover {
+    background-color: #006400;
+}
+
+.clear-button {
+    background-color: #00008B;
+}
+
+.clear-button:hover {
+    background-color: #000080;
 }
 
 #toast {
@@ -119,4 +148,10 @@ button:hover {
 @keyframes fadeout {
     from {bottom: 30px; opacity: 1;}
     to {bottom: 0; opacity: 0;}
+}
+
+/* 新增样式：调整按钮大小以适应更宽的输入框 */
+.button-group button {
+    flex: 1;
+    padding: 0.75rem 1rem; /* 增加左右内边距 */
 }
