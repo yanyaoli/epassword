@@ -11,25 +11,21 @@
         <h1 class="title">E-PASSWORD</h1>
         <div class="input-group">
             <input type="text" id="inputPassword" placeholder="Enter your password">
-            <button onclick="encryptAndCopyPassword()" title="Encrypt Password" class="encrypt-button">
-                Encrypt
-            </button>
+            <button onclick="encrypt()" title="Encrypt" class="encrypt-button">Encrypt</button>
         </div>
-        <div class="input-group">
-            <input type="text" id="passwordText" placeholder="The encrypted result is shown here" readonly>
+        <div class="input-group" style="position: relative;">
+            <input type="text" id="passwordText" placeholder="Encrypted result" readonly
+                style="padding-right: 40px;">
+            <svg class="copy-icon" onclick="handleCopy()" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+            </svg>
         </div>
         <div class="button-group">
-            <button onclick="generateAndCopyRandomPassword()" title="Generate Random Password" class="random-button">
-                Random
-            </button>
-            <button onclick="clearFields()" title="Clear" class="clear-button">
-                Clear
-            </button>
+            <button onclick="generateRandom()" title="Random" class="random-button">Random</button>
+            <button onclick="clearFields()" title="Clear" class="clear-button">Clear</button>
         </div>
-
         <div id="toast"></div>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
