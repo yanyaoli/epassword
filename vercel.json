@@ -1,53 +1,15 @@
 {
   "version": 2,
-  "name": "epassword-fullstack",
   "builds": [
     {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "."
-      }
+      "src": "server.js",
+      "use": "@vercel/node"
     }
   ],
-  "functions": {
-    "api/random.js": {
-      "runtime": "nodejs18.x"
-    },
-    "api/text.js": {
-      "runtime": "nodejs18.x"
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/server.js"
     }
-  },
-  "rewrites": [
-    {
-      "source": "/api/random",
-      "destination": "/api/random"
-    },
-    {
-      "source": "/api/:input",
-      "destination": "/api/text?input=$1"
-    },
-    {
-      "source": "/static/(.*)",
-      "destination": "/static/$1"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/static/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=86400"
-        }
-      ]
-    }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+  ]
 }
