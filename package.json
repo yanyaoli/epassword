@@ -1,0 +1,26 @@
+{
+  "name": "epassword-backend",
+  "version": "1.0.0",
+  "description": "E-PASSWORD Backend with API and Frontend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "build": "echo 'No build step required'",
+    "vercel-build": "echo 'No build step required'"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=14.x"
+  },
+  "keywords": [
+    "password",
+    "encryption",
+    "api",
+    "frontend"
+  ],
+  "author": "yanyaoli",
+  "license": "MIT"
+}
