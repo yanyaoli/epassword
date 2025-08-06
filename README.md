@@ -15,13 +15,13 @@ After deployment, manually input the password on the page and click the "Encrypt
 You can directly get the encrypted password by passing the `pwd` parameter in the URL. For example:
 
 ```
-https://www.example.com/?pwd=123
+https://www.example.com/123
 ```
 
 You will get the encrypted result:
 
 ```json
-{"password":"your password","epassword":"encrypted password"}
+encrypted password
 ```
 
 ### 2. Generate Random Password via URL Parameter
@@ -29,13 +29,13 @@ You will get the encrypted result:
 You can generate a random password by passing the `random` parameter in the URL. For example:
 
 ```
-https://www.example.com/?random
+https://www.example.com/random
 ```
 
 You will get a random password:
 
 ```json
-{"password":"randomly generated password","epassword":"encrypted password"}
+random encrypted password
 ```
 
 
