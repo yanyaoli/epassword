@@ -114,19 +114,24 @@ app.get('/:path', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// 启动服务器
-app.listen(PORT, () => {
-  console.log(`🚀 E-PASSWORD Server running on http://localhost:${PORT}`);
-  console.log('');
-  console.log('📱 前端页面:');
-  console.log(`   http://localhost:${PORT}/              - 主页`);
-  console.log(`   http://localhost:${PORT}/random        - 随机密码页面`);
-  console.log(`   http://localhost:${PORT}/hello         - 加密"hello"页面`);
-  console.log('');
-  console.log('📡 API接口:');
-  console.log(`   http://localhost:${PORT}/api/random    - 随机密码API`);
-  console.log(`   http://localhost:${PORT}/api/hello     - 加密"hello"API`);
-  console.log(`   http://localhost:${PORT}/api/info      - API信息`);
-  console.log('');
-  console.log('💡 提示: 前端页面支持路径路由，API接口返回纯文本');
-});
+// 启动服务器（仅在本地开发时）
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`🚀 E-PASSWORD Server running on http://localhost:${PORT}`);
+    console.log('');
+    console.log('📱 前端页面:');
+    console.log(`   http://localhost:${PORT}/              - 主页`);
+    console.log(`   http://localhost:${PORT}/random        - 随机密码页面`);
+    console.log(`   http://localhost:${PORT}/hello         - 加密"hello"页面`);
+    console.log('');
+    console.log('📡 API接口:');
+    console.log(`   http://localhost:${PORT}/api/random    - 随机密码API`);
+    console.log(`   http://localhost:${PORT}/api/hello     - 加密"hello"API`);
+    console.log(`   http://localhost:${PORT}/api/info      - API信息`);
+    console.log('');
+    console.log('💡 提示: 前端页面支持路径路由，API接口返回纯文本');
+  });
+}
+
+// 导出应用供 Vercel 使用
+module.exports = app;
