@@ -6,7 +6,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // 中间件
-app.use(express.static('.'));
+app.use('/static', express.static(path.join(__dirname, 'static')));
 app.use(express.json());
 
 // 统一的加密工具函数
@@ -55,6 +55,19 @@ app.get('/api/random', (req, res) => {
   }
 });
 
+// 明确处理根目录下的静态文件
+app.get('/index.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.get('/favicon.ico', (req, res) => {
+  res.status(404).send('Not Found');
+});
+
+app.get('/robots.txt', (req, res) => {
+  res.status(404).send('Not Found');
+});
+
 // GET /api/{input} - 返回加密后的字符串
 app.get('/api/:input', (req, res) => {
   try {
@@ -91,22 +104,29 @@ app.get('/api/:input', (req, res) => {
 // 前端页面路由
 // 根路径和所有非API路径都返回前端页面
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  console.log('Root route accessed');
+  try {
+    res.sendFile(path.join(__dirname, 'index.html'));
+  } catch (error) {
+    console.error('Error serving index.html:', error);
+    res.status(500).send('Error loading page');
+  }
 });
 
 // 处理前端路由（如 /random, /hello 等）
 app.get('/:path', (req, res) => {
   const requestPath = req.params.path;
 
-  // 如果是API路径，跳过
-  if (requestPath === 'api') {
+  // 如果是API路径，跳过（这些应该已经被上面的路由处理了）
+  if (requestPath.startsWith('api')) {
     return res.status(404).send('API endpoint not found');
   }
 
-  // 排除静态文件
+  // 排除静态文件和特殊文件
   if (requestPath.includes('.') ||
     requestPath === 'favicon.ico' ||
-    requestPath === 'robots.txt') {
+    requestPath === 'robots.txt' ||
+    requestPath === 'static') {
     return res.status(404).send('Not Found');
   }
 
