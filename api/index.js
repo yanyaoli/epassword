@@ -42,7 +42,12 @@ function hashToPassword(hash, version = 'new') {
   // 填充剩余字符
   for (let i = 4; i < 16; i++) {
     const index = parseInt(hash.substr(i * 2, 2), 16) % chars.length;
-    password += chars[index];
+    let nextChar = chars[index];
+    if (version === 'new' && password.endsWith('_') && nextChar === '_') {
+      const safeIndex = parseInt(hash.substr(i * 2, 2), 16) % 62;
+      nextChar = chars[safeIndex];
+    }
+    password += nextChar;
   }
   return password;
 }

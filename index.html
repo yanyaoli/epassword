@@ -11,11 +11,13 @@
 <body>
   <div class="container">
     <h1 class="title">EPASSWORD</h1>
-    <div class="input-group" style="margin-bottom: 12px;">
-      <select id="versionSelect" title="Password version">
-        <option value="old">Old Version</option>
-        <option value="new" selected>New Version</option>
-      </select>
+    <div class="version-switch" role="group" aria-label="Password version">
+      <button type="button" class="version-btn" data-version="old" aria-pressed="false">Old</button>
+      <button type="button" class="version-btn active" data-version="new" aria-pressed="true">New</button>
+    </div>
+    <div id="versionStatus" class="version-status">Current: New (A-Z a-z 0-9 _)</div>
+    <div class="input-group" style="margin-bottom: 2px;">
+      <div id="versionHint" class="version-hint">Switched to New version</div>
     </div>
     <div class="input-group" style="position: relative;">
       <input type="text" id="inputPassword" placeholder="Enter your password" style="padding-right: 80px;">

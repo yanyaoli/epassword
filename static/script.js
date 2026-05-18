@@ -23,6 +23,7 @@ document.getElementById('inputPassword').addEventListener('input', async (e) => 
 
 // 优化的历史记录添加逻辑 - 用户停止输入1秒后添加
 let historyTimeout;
+let currentVersion = 'new';
 document.getElementById('inputPassword').addEventListener('input', (e) => {
   clearTimeout(historyTimeout);
   const input = e.target.value.trim();
@@ -183,8 +184,37 @@ function getChars(version = 'old') {
 }
 
 function getSelectedVersion() {
-  const versionSelect = document.getElementById('versionSelect');
-  return versionSelect ? versionSelect.value : 'new';
+  return currentVersion;
+}
+
+function getVersionLabel(version) {
+  return version === 'new' ? 'New (A-Z a-z 0-9 _)' : 'Old (A-Z a-z 0-9 + symbols)';
+}
+
+function updateVersionUI(version) {
+  currentVersion = version === 'old' ? 'old' : 'new';
+
+  const buttons = document.querySelectorAll('.version-btn');
+  buttons.forEach((btn) => {
+    const active = btn.dataset.version === currentVersion;
+    btn.classList.toggle('active', active);
+    btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+  });
+
+  const status = document.getElementById('versionStatus');
+  if (status) {
+    status.textContent = `Current: ${getVersionLabel(currentVersion)}`;
+  }
+}
+
+function showVersionHint(message) {
+  const hint = document.getElementById('versionHint');
+  if (!hint) return;
+
+  hint.textContent = message;
+  hint.classList.add('show');
+  clearTimeout(showVersionHint.timer);
+  showVersionHint.timer = setTimeout(() => hint.classList.remove('show'), 1200);
 }
 
 function hashToPassword(hash, version = 'new') {
@@ -202,7 +232,12 @@ function hashToPassword(hash, version = 'new') {
 
   for (let i = 4; i < 16; i++) {
     const index = parseInt(hash.substr(i * 2, 2), 16) % chars.length;
-    password += chars[index];
+    let nextChar = chars[index];
+    if (version === 'new' && password.endsWith('_') && nextChar === '_') {
+      const safeIndex = parseInt(hash.substr(i * 2, 2), 16) % 62;
+      nextChar = chars[safeIndex];
+    }
+    password += nextChar;
   }
 
   return password;
@@ -210,9 +245,18 @@ function hashToPassword(hash, version = 'new') {
 
 function generateRandomPassword(length = 12, version = 'new') {
   const chars = getChars(version);
-  return [...Array(length)]
-    .map(() => chars[Math.floor(Math.random() * chars.length)])
-    .join('');
+  if (version !== 'new') {
+    return [...Array(length)]
+      .map(() => chars[Math.floor(Math.random() * chars.length)])
+      .join('');
+  }
+
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    const pool = result.endsWith('_') ? chars.slice(0, 62) : chars;
+    result += pool[Math.floor(Math.random() * pool.length)];
+  }
+  return result;
 }
 
 // 剪贴板操作
@@ -349,22 +393,32 @@ function clearFields() {
 // 初始化
 window.onload = () => {
   updateHistoryDisplay();
+  updateVersionUI('new');
 
-  const versionSelect = document.getElementById('versionSelect');
-  if (versionSelect) {
-    versionSelect.addEventListener('change', async () => {
-      const input = document.getElementById('inputPassword').value.trim();
-      if (!input) {
-        document.getElementById('passwordText').value = '';
-        return;
-      }
+  const versionButtons = document.querySelectorAll('.version-btn');
+  if (versionButtons.length > 0) {
+    versionButtons.forEach((button) => {
+      button.addEventListener('click', async () => {
+        const targetVersion = button.dataset.version === 'old' ? 'old' : 'new';
+        if (targetVersion === getSelectedVersion()) return;
 
-      try {
-        const encrypted = await hashToPassword(await sha256(input), getSelectedVersion());
-        document.getElementById('passwordText').value = encrypted;
-      } catch (error) {
-        console.error('Version switch encryption error:', error);
-      }
+        updateVersionUI(targetVersion);
+        showVersionHint(`Switched to ${targetVersion === 'new' ? 'New' : 'Old'} version`);
+
+        const input = document.getElementById('inputPassword').value.trim();
+        if (!input) {
+          document.getElementById('passwordText').value = '';
+          return;
+        }
+
+        try {
+          const encrypted = await hashToPassword(await sha256(input), getSelectedVersion());
+          document.getElementById('passwordText').value = encrypted;
+          showToast(`Using ${targetVersion === 'new' ? 'New' : 'Old'} version`);
+        } catch (error) {
+          console.error('Version switch encryption error:', error);
+        }
+      });
     });
   }
 };
