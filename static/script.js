@@ -11,7 +11,7 @@ document.getElementById('inputPassword').addEventListener('input', async (e) => 
   const input = e.target.value.trim();
   if (input) {
     try {
-      const encrypted = await hashToPassword(await sha256(input));
+      const encrypted = await hashToPassword(await sha256(input), getSelectedVersion());
       document.getElementById('passwordText').value = encrypted;
     } catch (error) {
       console.error("Real-time encryption error:", error);
@@ -39,7 +39,7 @@ document.getElementById('inputPassword').addEventListener('input', (e) => {
 async function processUserInput(input) {
   document.getElementById('inputPassword').value = input;
   try {
-    const encrypted = await hashToPassword(await sha256(input));
+    const encrypted = await hashToPassword(await sha256(input), getSelectedVersion());
     document.getElementById('passwordText').value = encrypted;
     // 添加到历史记录
     addToHistory(input);
@@ -121,7 +121,7 @@ function updateHistoryDisplay() {
 async function selectFromHistory(input) {
   document.getElementById('inputPassword').value = input;
   try {
-    const encrypted = await hashToPassword(await sha256(input));
+    const encrypted = await hashToPassword(await sha256(input), getSelectedVersion());
     document.getElementById('passwordText').value = encrypted;
   } catch (error) {
     console.error("Error processing history selection:", error);
@@ -134,7 +134,7 @@ async function encrypt() {
   if (!input) return showToast("Please enter password to encrypt");
 
   try {
-    const encrypted = await hashToPassword(await sha256(input));
+    const encrypted = await hashToPassword(await sha256(input), getSelectedVersion());
     document.getElementById('passwordText').value = encrypted;
     showToast("Password encrypted");
   } catch (error) {
@@ -145,9 +145,10 @@ async function encrypt() {
 
 async function generateRandom() {
   try {
-    const random = generateRandomPassword();
+    const version = getSelectedVersion();
+    const random = generateRandomPassword(12, version);
     document.getElementById('inputPassword').value = random;
-    document.getElementById('passwordText').value = await hashToPassword(await sha256(random));
+    document.getElementById('passwordText').value = await hashToPassword(await sha256(random), version);
   } catch (error) {
     showToast("Failed to generate password");
     console.error("Generation error:", error);
@@ -157,9 +158,10 @@ async function generateRandom() {
 // 从URL路由生成随机密码（不显示toast）
 async function generateRandomFromUrl() {
   try {
-    const random = generateRandomPassword();
+    const version = getSelectedVersion();
+    const random = generateRandomPassword(12, version);
     document.getElementById('inputPassword').value = random;
-    document.getElementById('passwordText').value = await hashToPassword(await sha256(random));
+    document.getElementById('passwordText').value = await hashToPassword(await sha256(random), version);
   } catch (error) {
     console.error("Generation error:", error);
   }
@@ -172,14 +174,31 @@ async function sha256(message) {
   return Array.from(new Uint8Array(buffer)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-function hashToPassword(hash) {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=';
+function getChars(version = 'old') {
+  if (version === 'new') {
+    return 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_';
+  }
+
+  return 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=';
+}
+
+function getSelectedVersion() {
+  const versionSelect = document.getElementById('versionSelect');
+  return versionSelect ? versionSelect.value : 'new';
+}
+
+function hashToPassword(hash, version = 'new') {
+  const chars = getChars(version);
   let password = '';
 
   password += chars[parseInt(hash.substr(0, 2), 16) % 26]; // Uppercase
   password += chars[26 + parseInt(hash.substr(2, 2), 16) % 26]; // Lowercase
   password += chars[52 + parseInt(hash.substr(4, 2), 16) % 10]; // Numbers
-  password += chars[62 + parseInt(hash.substr(6, 2), 16) % 14]; // Symbols
+  if (version === 'new') {
+    password += chars[62]; // _
+  } else {
+    password += chars[62 + parseInt(hash.substr(6, 2), 16) % 14]; // Symbols
+  }
 
   for (let i = 4; i < 16; i++) {
     const index = parseInt(hash.substr(i * 2, 2), 16) % chars.length;
@@ -189,11 +208,11 @@ function hashToPassword(hash) {
   return password;
 }
 
-function generateRandomPassword(length = 12) {
-  return [...Array(length)].map(() =>
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-='[
-    Math.floor(Math.random() * 77)
-    ]).join('');
+function generateRandomPassword(length = 12, version = 'new') {
+  const chars = getChars(version);
+  return [...Array(length)]
+    .map(() => chars[Math.floor(Math.random() * chars.length)])
+    .join('');
 }
 
 // 剪贴板操作
@@ -330,4 +349,22 @@ function clearFields() {
 // 初始化
 window.onload = () => {
   updateHistoryDisplay();
+
+  const versionSelect = document.getElementById('versionSelect');
+  if (versionSelect) {
+    versionSelect.addEventListener('change', async () => {
+      const input = document.getElementById('inputPassword').value.trim();
+      if (!input) {
+        document.getElementById('passwordText').value = '';
+        return;
+      }
+
+      try {
+        const encrypted = await hashToPassword(await sha256(input), getSelectedVersion());
+        document.getElementById('passwordText').value = encrypted;
+      } catch (error) {
+        console.error('Version switch encryption error:', error);
+      }
+    });
+  }
 };

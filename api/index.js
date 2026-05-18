@@ -10,9 +10,15 @@ app.use('/static', express.static(path.join(__dirname, '..', 'static')));
 app.use(express.json());
 
 // 统一的加密工具函数
-const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=';
+const OLD_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=';
+const NEW_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_';
 
-function generateRandomPassword(length = 12) {
+function getChars(version = 'new') {
+  return version === 'new' ? NEW_CHARS : OLD_CHARS;
+}
+
+function generateRandomPassword(length = 12, version = 'new') {
+  const chars = getChars(version);
   return [...Array(length)].map(() => chars[Math.floor(Math.random() * chars.length)]).join('');
 }
 
@@ -20,13 +26,18 @@ function sha256(message) {
   return crypto.createHash('sha256').update(message, 'utf8').digest('hex');
 }
 
-function hashToPassword(hash) {
+function hashToPassword(hash, version = 'new') {
+  const chars = getChars(version);
   let password = '';
   // 确保密码包含各种字符类型
   password += chars[parseInt(hash.substr(0, 2), 16) % 26]; // Uppercase
   password += chars[26 + parseInt(hash.substr(2, 2), 16) % 26]; // Lowercase
   password += chars[52 + parseInt(hash.substr(4, 2), 16) % 10]; // Numbers
-  password += chars[62 + parseInt(hash.substr(6, 2), 16) % 14]; // Symbols
+  if (version === 'new') {
+    password += chars[62]; // _
+  } else {
+    password += chars[62 + parseInt(hash.substr(6, 2), 16) % 14]; // Symbols
+  }
 
   // 填充剩余字符
   for (let i = 4; i < 16; i++) {
@@ -36,16 +47,17 @@ function hashToPassword(hash) {
   return password;
 }
 
-function encryptPassword(input) {
-  return hashToPassword(sha256(input));
+function encryptPassword(input, version = 'new') {
+  return hashToPassword(sha256(input), version);
 }
 
 // API 路由 - 返回纯文本
 // GET /api/random - 返回随机密码字符串
 app.get('/api/random', (req, res) => {
   try {
-    const randomPassword = generateRandomPassword();
-    const encryptedPassword = encryptPassword(randomPassword);
+    const version = req.query.version === 'old' ? 'old' : 'new';
+    const randomPassword = generateRandomPassword(12, version);
+    const encryptedPassword = encryptPassword(randomPassword, version);
 
     res.type('text/plain');
     res.send(encryptedPassword);
@@ -72,6 +84,7 @@ app.get('/robots.txt', (req, res) => {
 app.get('/api/:input', (req, res) => {
   try {
     const input = decodeURIComponent(req.params.input);
+    const version = req.query.version === 'old' ? 'old' : 'new';
 
     // 排除特殊路径
     if (input === 'info') {
@@ -91,7 +104,7 @@ app.get('/api/:input', (req, res) => {
       });
     }
 
-    const encryptedPassword = encryptPassword(input);
+    const encryptedPassword = encryptPassword(input, version);
 
     res.type('text/plain');
     res.send(encryptedPassword);
