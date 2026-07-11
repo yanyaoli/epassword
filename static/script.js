@@ -11,7 +11,7 @@ document.getElementById('inputPassword').addEventListener('input', async (e) => 
   const input = e.target.value.trim();
   if (input) {
     try {
-      const encrypted = await hashToPassword(await sha256(input), getSelectedVersion());
+      const encrypted = await hashToPassword(await sha256(input), 'old');
       document.getElementById('passwordText').value = encrypted;
     } catch (error) {
       console.error("Real-time encryption error:", error);
@@ -39,7 +39,7 @@ document.getElementById('inputPassword').addEventListener('input', (e) => {
 async function processUserInput(input) {
   document.getElementById('inputPassword').value = input;
   try {
-    const encrypted = await hashToPassword(await sha256(input), getSelectedVersion());
+    const encrypted = await hashToPassword(await sha256(input), 'old');
     document.getElementById('passwordText').value = encrypted;
     // 添加到历史记录
     addToHistory(input);
@@ -121,7 +121,7 @@ function updateHistoryDisplay() {
 async function selectFromHistory(input) {
   document.getElementById('inputPassword').value = input;
   try {
-    const encrypted = await hashToPassword(await sha256(input), getSelectedVersion());
+    const encrypted = await hashToPassword(await sha256(input), 'old');
     document.getElementById('passwordText').value = encrypted;
   } catch (error) {
     console.error("Error processing history selection:", error);
@@ -134,7 +134,7 @@ async function encrypt() {
   if (!input) return showToast("Please enter password to encrypt");
 
   try {
-    const encrypted = await hashToPassword(await sha256(input), getSelectedVersion());
+    const encrypted = await hashToPassword(await sha256(input), 'old');
     document.getElementById('passwordText').value = encrypted;
     showToast("Password encrypted");
   } catch (error) {
@@ -145,10 +145,9 @@ async function encrypt() {
 
 async function generateRandom() {
   try {
-    const version = getSelectedVersion();
-    const random = generateRandomPassword(12, version);
+    const random = generateRandomPassword(12, 'old');
     document.getElementById('inputPassword').value = random;
-    document.getElementById('passwordText').value = await hashToPassword(await sha256(random), version);
+    document.getElementById('passwordText').value = await hashToPassword(await sha256(random), 'old');
   } catch (error) {
     showToast("Failed to generate password");
     console.error("Generation error:", error);
@@ -158,10 +157,9 @@ async function generateRandom() {
 // 从URL路由生成随机密码（不显示toast）
 async function generateRandomFromUrl() {
   try {
-    const version = getSelectedVersion();
-    const random = generateRandomPassword(12, version);
+    const random = generateRandomPassword(12, 'old');
     document.getElementById('inputPassword').value = random;
-    document.getElementById('passwordText').value = await hashToPassword(await sha256(random), version);
+    document.getElementById('passwordText').value = await hashToPassword(await sha256(random), 'old');
   } catch (error) {
     console.error("Generation error:", error);
   }
@@ -182,12 +180,7 @@ function getChars(version = 'old') {
   return 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=';
 }
 
-function getSelectedVersion() {
-  const versionSelect = document.getElementById('versionSelect');
-  return versionSelect ? versionSelect.value : 'old';
-}
-
-function hashToPassword(hash, version = 'new') {
+function hashToPassword(hash, version = 'old') {
   const chars = getChars(version);
   let password = '';
 
@@ -349,22 +342,4 @@ function clearFields() {
 // 初始化
 window.onload = () => {
   updateHistoryDisplay();
-
-  const versionSelect = document.getElementById('versionSelect');
-  if (versionSelect) {
-    versionSelect.addEventListener('change', async () => {
-      const input = document.getElementById('inputPassword').value.trim();
-      if (!input) {
-        document.getElementById('passwordText').value = '';
-        return;
-      }
-
-      try {
-        const encrypted = await hashToPassword(await sha256(input), getSelectedVersion());
-        document.getElementById('passwordText').value = encrypted;
-      } catch (error) {
-        console.error('Version switch encryption error:', error);
-      }
-    });
-  }
 };
