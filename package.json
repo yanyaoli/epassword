@@ -15,12 +15,6 @@
   "engines": {
     "node": ">=14.x"
   },
-  "keywords": [
-    "password",
-    "encryption",
-    "api",
-    "frontend"
-  ],
   "author": "yanyaoli",
   "license": "MIT"
 }

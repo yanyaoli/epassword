@@ -184,7 +184,7 @@ function getChars(version = 'old') {
 
 function getSelectedVersion() {
   const versionSelect = document.getElementById('versionSelect');
-  return versionSelect ? versionSelect.value : 'new';
+  return versionSelect ? versionSelect.value : 'old';
 }
 
 function hashToPassword(hash, version = 'new') {

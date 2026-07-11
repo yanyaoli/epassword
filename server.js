@@ -3,7 +3,6 @@ const crypto = require('crypto');
 const path = require('path');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 // 中间件
 app.use('/static', express.static(path.join(__dirname, 'static')));
@@ -13,11 +12,11 @@ app.use(express.json());
 const OLD_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=';
 const NEW_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_';
 
-function getChars(version = 'new') {
+function getChars(version = 'old') {
   return version === 'new' ? NEW_CHARS : OLD_CHARS;
 }
 
-function generateRandomPassword(length = 12, version = 'new') {
+function generateRandomPassword(length = 12, version = 'old') {
   const chars = getChars(version);
   return [...Array(length)].map(() => chars[Math.floor(Math.random() * chars.length)]).join('');
 }
@@ -26,7 +25,7 @@ function sha256(message) {
   return crypto.createHash('sha256').update(message, 'utf8').digest('hex');
 }
 
-function hashToPassword(hash, version = 'new') {
+function hashToPassword(hash, version = 'old') {
   const chars = getChars(version);
   let password = '';
   // 确保密码包含各种字符类型
@@ -47,7 +46,7 @@ function hashToPassword(hash, version = 'new') {
   return password;
 }
 
-function encryptPassword(input, version = 'new') {
+function encryptPassword(input, version = 'old') {
   return hashToPassword(sha256(input), version);
 }
 
@@ -55,7 +54,7 @@ function encryptPassword(input, version = 'new') {
 // GET /api/random - 返回随机密码字符串
 app.get('/api/random', (req, res) => {
   try {
-    const version = req.query.version === 'old' ? 'old' : 'new';
+    const version = req.query.version === 'new' ? 'new' : 'old';
     const randomPassword = generateRandomPassword(12, version);
     const encryptedPassword = encryptPassword(randomPassword, version);
 
@@ -84,7 +83,7 @@ app.get('/robots.txt', (req, res) => {
 app.get('/api/:input', (req, res) => {
   try {
     const input = decodeURIComponent(req.params.input);
-    const version = req.query.version === 'old' ? 'old' : 'new';
+    const version = req.query.version === 'new' ? 'new' : 'old';
 
     // 排除特殊路径
     if (input === 'info') {
@@ -117,7 +116,6 @@ app.get('/api/:input', (req, res) => {
 // 前端页面路由
 // 根路径和所有非API路径都返回前端页面
 app.get('/', (req, res) => {
-  console.log('Root route accessed');
   try {
     res.sendFile(path.join(__dirname, 'index.html'));
   } catch (error) {
@@ -148,6 +146,7 @@ app.get('/:path', (req, res) => {
 });
 
 // 启动服务器（仅在本地开发时）
+const PORT = process.env.PORT || 3000;
 if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`🚀 E-PASSWORD Server running on http://localhost:${PORT}`);
@@ -166,5 +165,4 @@ if (require.main === module) {
   });
 }
 
-// 导出应用供 Vercel 使用
 module.exports = app;
